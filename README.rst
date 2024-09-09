@@ -28,7 +28,7 @@ It's a small bit of Python glue between great projects, including:
   - NanumGothicCoding
   - OpenMoji
 
-The background image is from [Sharon McCutcheon](https://unsplash.com/@sharonmccutcheon).
+The background image is from `Alexander Grey`_.
 
 Usage
 -----
@@ -328,6 +328,7 @@ which is automatically called by ``start/local.sh`` and ``mk/ctnr.sh``.
 .. _Papertrail: https://www.papertrail.com
 .. _pyTelegramBotAPI: https://github.com/eternnoir/pyTelegramBotAPI
 .. _send a message: https://t.me/andykluger
+.. _Alexander Grey: https://unsplash.com/@sharonmccutcheon
 .. _Silicon: https://github.com/Aloxaf/silicon
 .. _sops: https://github.com/mozilla/sops
 .. _wheezy.template: https://github.com/akornatskyy/wheezy.template
