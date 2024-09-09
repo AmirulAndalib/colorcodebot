@@ -1,10 +1,11 @@
 Assembly: asm
 Bash: sh
 C: c
-'C#': csharp
+"C#": csharp
 CSS: css
 Dart: dart
 Diff: diff
+Factor: factor
 Go: go
 Haskell: hs
 HTML: html

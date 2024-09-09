@@ -182,9 +182,9 @@ def mk_png(code: str, ext: str, theme: str = 'Coldark-Dark', folder=None) -> str
             '--background-image', BG_IMAGE,
             '-f', '; '.join((
                 'Iosevka Term Custom',
-                'Symbols Nerd Font',
-                'NanumGothicCoding',
+                'Symbols Nerd Font Mono',
                 'OpenMoji',
+                'NanumGothicCoding',
             ))
         ]
         << code
@@ -583,7 +583,11 @@ class ColorCodeBot:
             '\\':    'tex',
             '%%':    'tex',
             '[[':    'toml', '[': 'ini',
-            '<?php': 'php',  '<': 'xml'
+            '<?php': 'php',  '<': 'xml',
+            '! ': 'factor',
+            ': ': 'factor',
+            'USING: ': 'factor',
+            'IN: ': 'factor',
             # fmt: on
         }.items():
             if code.startswith(start):
