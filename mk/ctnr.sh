@@ -98,7 +98,7 @@ ctnr_mkuser () {  # <username>
 }
 
 ctnr_trim () {
-  # shellcheck disable=SC2046
+  # shellcheck disable=SC2046,SC2086
   ctnr_pkg_del $build_pkgs $aur_build_pkgs $(ctnr_run pacman -Qqdtt)
   ctnr_run sh -c "rm -rf $fat"
 }
@@ -202,12 +202,13 @@ fi
 ctnr_run /home/$user/venv/bin/pip uninstall -qy pip wheel
 
 # Save this stage as a daily "jumpstart" image
-if [ $make_jumpstart_img ]; then
+if [ "$make_jumpstart_img" ]; then
   printf '%s\n' '' '>>> Making jumpstart image . . .' '' >&2
   ctnr_trim
   buildah commit -q --rm "$ctnr" "$img-jumpstart:$today"
   buildah from -q --name "$ctnr" "$img-jumpstart:$today"
   ctnr_pkg_upgrade
+  # shellcheck disable=SC2086
   ctnr_pkg_add $build_pkgs
 fi
 
