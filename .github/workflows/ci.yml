@@ -14,7 +14,7 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
 
       - name: install build tools from PyPI
-        run: pip3 install -r ops-requirements.txt
+        run: pipx install yamlpath
 
       - name: install sops from GitHub
         run: >-

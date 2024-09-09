@@ -49,7 +49,7 @@ fat="/tmp/*"
 fat="$fat /home/$user/.cache/* /home/builder/.cache/* /root/.cache/*"
 fat="$fat /home/builder/* /home/builder/.cargo"
 fat="$fat /home/$user/.local/bin /root/.local/bin"
-fat="$fat /var/cache/pacman/pkg/* /var/lib/pacman/sync/* /var/lib/pacman/local/*"
+fat="$fat /var/cache/pacman/pkg/* /var/lib/pacman/sync/*"
 
 #################
 ### Functions ###
