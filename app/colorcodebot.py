@@ -68,9 +68,11 @@ def is_from_group_admin_or_creator(bot, message_or_query: Union[Message, Callbac
 def load_configs() -> Config:
     data = {}
     (data['lang'], theme_names_ids, syntax_names_exts, data['guesslang']) = (
-        yload((local.path(__file__).up() / f'{yml}.yml').read())
-        if (local.path(__file__).up() / f'{yml}.yml').exists()
-        else {}
+        (
+            yload((local.path(__file__).up() / f'{yml}.yml').read())
+            if (local.path(__file__).up() / f'{yml}.yml').exists()
+            else {}
+        )
         for yml in ('english', 'theme_previews', 'syntaxes', 'guesslang')
     )
 
@@ -252,9 +254,11 @@ def mk_logger(json=True) -> BindableLogger:
     structlog.configure(
         processors=[
             structlog.processors.format_exc_info,
-            structlog.processors.JSONRenderer(sort_keys=True)
-            if json
-            else structlog.dev.ConsoleRenderer(),
+            (
+                structlog.processors.JSONRenderer(sort_keys=True)
+                if json
+                else structlog.dev.ConsoleRenderer()
+            ),
         ]
     )
     return structlog.get_logger()
@@ -448,9 +452,9 @@ class ColorCodeBot:
     def get_group_config_md(self, chat_id):
         return self.lang['current config'].format(
             default_syntax=str(self.group_syntaxes.get(chat_id)),
-            ignore_mode="ignore"
-            if self.ignore_mode_groups.get(chat_id, False)
-            else "watch",
+            ignore_mode=(
+                "ignore" if self.ignore_mode_groups.get(chat_id, False) else "watch"
+            ),
         )
 
     @retry
@@ -488,9 +492,9 @@ class ColorCodeBot:
             user_is_admin=is_admin_or_creator,
         )
         if is_admin_or_creator:
-            self.ignore_mode_groups[
-                cb_query.message.chat.id
-            ] = not self.ignore_mode_groups.get(cb_query.message.chat.id, False)
+            self.ignore_mode_groups[cb_query.message.chat.id] = (
+                not self.ignore_mode_groups.get(cb_query.message.chat.id, False)
+            )
             self.bot.edit_message_text(
                 self.get_group_config_md(cb_query.message.chat.id),
                 cb_query.message.chat.id,
