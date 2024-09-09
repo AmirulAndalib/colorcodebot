@@ -35,22 +35,21 @@ ctnr=${img}-building
 user=$appname
 svcs_dir=/home/$user/svcs
 
-iosevka_pkg='https://github.com/AndydeCleyre/archbuilder_iosevka/releases/download/v16.4.0-ccb/ttf-iosevka-term-custom-git-1668963274-1-any.pkg.tar.zst'
+iosevka_pkg='https://github.com/AndydeCleyre/archbuilder_iosevka/releases/download/31.6.1-ccb/ttf-iosevka-term-custom-git-1725883949-1-any.pkg.tar.zst'
 today=$(date +%Y.%j)
 tz="America/New_York"
 
 base_img='docker.io/library/archlinux:base'
-pkgs='highlight python silicon sops ttf-nerd-fonts-symbols-1000-em-mono'
+pkgs='highlight silicon sops ttf-nerd-fonts-symbols-mono'
 aur_pkgs='otf-openmoji s6 ttf-nanumgothic_coding'
-build_pkgs='git'
-build_groups='base-devel'
+aur_build_pkgs='mise-bin'
+build_pkgs='base-devel git'
 
-fat="/tmp/* /usr/lib/python3.*/__pycache__"
+fat="/tmp/*"
 fat="$fat /home/$user/.cache/* /home/builder/.cache/* /root/.cache/*"
 fat="$fat /home/builder/* /home/builder/.cargo"
 fat="$fat /home/$user/.local/bin /root/.local/bin"
-# fat="$fat /var/cache/pacman/pkg/* /var/lib/pacman/sync/* /var/lib/pacman/local/*"
-fat="$fat /var/cache/pacman/pkg/* /var/lib/pacman/sync/*"
+fat="$fat /var/cache/pacman/pkg/* /var/lib/pacman/sync/* /var/lib/pacman/local/*"
 
 #################
 ### Functions ###
@@ -100,7 +99,7 @@ ctnr_mkuser () {  # <username>
 
 ctnr_trim () {
   # shellcheck disable=SC2046
-  ctnr_pkg_del $build_pkgs $(ctnr_run pacman -Qqgtt $build_groups) $(ctnr_run pacman -Qqdtt)
+  ctnr_pkg_del $build_pkgs $aur_build_pkgs $(ctnr_run pacman -Qqdtt)
   ctnr_run sh -c "rm -rf $fat"
 }
 
@@ -126,7 +125,7 @@ ctnr_run ln -sf /usr/share/zoneinfo/$tz /etc/localtime
 printf '%s\n' '' '>>> Upgrading and installing distro packages . . .' '' >&2
 ctnr_pkg_upgrade
 # shellcheck disable=SC2086
-ctnr_pkg_add $pkgs $build_pkgs $build_groups
+ctnr_pkg_add $pkgs $build_pkgs
 
 # Add user
 ctnr_mkuser $user
@@ -142,9 +141,16 @@ ctnr_cd /tmp/paru-bin
 ctnr_run -b makepkg --noconfirm -si
 ctnr_cd /home/builder
 # shellcheck disable=SC2086
-ctnr_run -b paru -S --noconfirm --needed $aur_pkgs
+ctnr_run -b paru -S --noconfirm --needed $aur_pkgs $aur_build_pkgs
 ctnr_pkg_del paru-bin
 ctnr_cd "/home/$user"
+
+# Install Iosevka font
+ctnr_fetch "$iosevka_pkg" /tmp
+ctnr_run sh -c "pacman -U --noconfirm /tmp/ttf-iosevka-*.pkg.tar.zst"
+
+# Rebuild font cache
+ctnr_run -u fc-cache -r
 
 # Copy app and svcs into container
 tmp=$(mktemp -d)
@@ -174,9 +180,20 @@ ctnr_run chown -R "${user}:${user}" /home/$user
 # Tidy up:
 rm -rf "$tmp"
 
-# Install python modules
+# Install extra syntax definitions
+ctnr_run -u mkdir -p /home/$user/.config/silicon/themes
+ctnr_run -u mkdir -p /home/$user/.config/silicon/syntaxes
+ctnr_fetch -u "https://github.com/rkoeninger/sublime-factor/raw/master/Factor.sublime-syntax" "/home/$user/.config/silicon/syntaxes/"
+ctnr_cd "/home/$user/.config/silicon"
+ctnr_run -u silicon --build-cache
+ctnr_cd "/home/$user"
+
+# Install Python 3.11
+ctnr_run -u mise install python@3.11
+
+# Install Python modules
 printf '%s\n' '' '>>> Installing PyPI packages . . .' '' >&2
-ctnr_run -u python3 -m venv /home/$user/venv
+ctnr_run -u /home/$user/.local/share/mise/installs/python/3.11/bin/python -m venv /home/$user/venv
 ctnr_run /home/$user/venv/bin/pip install -qU pip wheel
 ctnr_run /home/$user/venv/bin/pip install -Ur /home/$user/requirements.txt
 if ctnr_run test -f "/home/${user}/${deployment}-requirements.txt"; then
@@ -191,15 +208,8 @@ if [ $make_jumpstart_img ]; then
   buildah commit -q --rm "$ctnr" "$img-jumpstart:$today"
   buildah from -q --name "$ctnr" "$img-jumpstart:$today"
   ctnr_pkg_upgrade
-  ctnr_pkg_add $build_pkgs $build_groups
+  ctnr_pkg_add $build_pkgs
 fi
-
-# Install iosevka font
-ctnr_fetch "$iosevka_pkg" /tmp
-ctnr_run sh -c "tar xf /tmp/ttf-iosevka-*.pkg.tar.zst -C / --wildcards --wildcards-match-slash '*-regular.ttf' '*-italic.ttf' '*-bold.ttf' '*-bolditalic.ttf'"
-
-# Rebuild font cache
-ctnr_run -u fc-cache -r
 
 # Install papertrail agent, if enabled
 command -v yaml-get || exit 1
