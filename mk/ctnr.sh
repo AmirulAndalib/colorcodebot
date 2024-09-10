@@ -99,7 +99,7 @@ ctnr_mkuser () {  # <username>
 
 ctnr_trim () {
   # shellcheck disable=SC2046,SC2086
-  ctnr_pkg_del $build_pkgs $aur_build_pkgs $(ctnr_run pacman -Qqdtt)
+  ctnr_pkg_del $build_pkgs $aur_build_pkgs $(ctnr_run pacman -Qqdtt) || true
   ctnr_run sh -c "rm -rf $fat"
 }
 
@@ -207,9 +207,6 @@ if [ "$make_jumpstart_img" ]; then
   ctnr_trim
   buildah commit -q --rm "$ctnr" "$img-jumpstart:$today"
   buildah from -q --name "$ctnr" "$img-jumpstart:$today"
-  ctnr_pkg_upgrade
-  # shellcheck disable=SC2086
-  ctnr_pkg_add $build_pkgs
 fi
 
 # Install papertrail agent, if enabled
