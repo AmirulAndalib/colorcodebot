@@ -1,10 +1,12 @@
 absl-py==2.1.0            # via -r app/requirements.txt, tensorboard, tensorflow
 astunparse==1.6.3         # via -r app/requirements.txt, tensorflow
+backcall==0.2.0           # via -r app/dev-requirements.txt, ipython
 black==24.8.0             # via -r ops-requirements.txt
 cachetools==5.5.0         # via -r app/requirements.txt, google-auth
 certifi==2024.8.30        # via -r app/requirements.txt, requests
 charset-normalizer==3.3.2  # via -r app/requirements.txt, requests
 click==8.1.7              # via -r ops-requirements.txt, black
+decorator==5.1.1          # via -r app/dev-requirements.txt, ipython
 flatbuffers==24.3.25      # via -r app/requirements.txt, tensorflow
 gast==0.4.0               # via -r app/requirements.txt, tensorflow
 google-auth==2.34.0       # via -r app/requirements.txt, google-auth-oauthlib, tensorboard
@@ -14,31 +16,39 @@ grpcio==1.66.1            # via -r app/requirements.txt, tensorboard, tensorflow
 guesslang @ git+https://github.com/andydecleyre/guesslang@tensorflow-looser  # via -r app/requirements.txt
 h5py==3.11.0              # via -r app/requirements.txt, tensorflow
 idna==3.8                 # via -r app/requirements.txt, requests
+ipython==7.34.0           # via -r app/dev-requirements.txt
 isort==5.13.2             # via -r ops-requirements.txt
+jedi==0.19.1              # via -r app/dev-requirements.txt, ipython
 keras==2.13.1             # via -r app/requirements.txt, tensorflow
 libclang==18.1.1          # via -r app/requirements.txt, tensorflow
 markdown==3.7             # via -r app/requirements.txt, tensorboard
 markdown-it-py==3.0.0     # via -r app/dev-requirements.txt, rich
 markupsafe==2.1.5         # via -r app/requirements.txt, werkzeug
+matplotlib-inline==0.1.7  # via -r app/dev-requirements.txt, ipython
 mdurl==0.1.2              # via -r app/dev-requirements.txt, markdown-it-py
 mypy-extensions==1.0.0    # via -r ops-requirements.txt, black
 numpy==1.24.3             # via -r app/requirements.txt, h5py, opt-einsum, tensorboard, tensorflow
 oauthlib==3.2.2           # via -r app/requirements.txt, requests-oauthlib
 opt-einsum==3.3.0         # via -r app/requirements.txt, tensorflow
 packaging==24.1           # via -r app/requirements.txt, -r ops-requirements.txt, black, tensorflow
+parso==0.8.4              # via -r app/dev-requirements.txt, jedi
 pathspec==0.12.1          # via -r ops-requirements.txt, black
 peewee==3.17.6            # via -r app/requirements.txt
+pexpect==4.9.0            # via -r app/dev-requirements.txt, ipython
+pickleshare==0.7.5        # via -r app/dev-requirements.txt, ipython
 platformdirs==4.3.2       # via -r ops-requirements.txt, black
 plumbum==1.8.3            # via -r app/requirements.txt
+prompt-toolkit==3.0.47    # via -r app/dev-requirements.txt, ipython
 protobuf==4.25.4          # via -r app/requirements.txt, tensorboard, tensorflow
+ptyprocess==0.7.0         # via -r app/dev-requirements.txt, pexpect
 pyasn1==0.6.0             # via -r app/requirements.txt, pyasn1-modules, rsa
 pyasn1-modules==0.4.0     # via -r app/requirements.txt, google-auth
-pygments==2.18.0          # via -r app/dev-requirements.txt, rich
+pygments==2.18.0          # via -r app/dev-requirements.txt, ipython, rich
 pytelegrambotapi==4.22.1  # via -r app/requirements.txt
 python-dateutil==2.9.0.post0  # via -r app/requirements.txt, -r ops-requirements.txt, strictyaml, yamlpath
 requests==2.32.3          # via -r app/requirements.txt, pytelegrambotapi, requests-oauthlib, tensorboard
 requests-oauthlib==2.0.0  # via -r app/requirements.txt, google-auth-oauthlib
-rich==13.8.0              # via -r app/dev-requirements.txt
+rich==13.8.1              # via -r app/dev-requirements.txt
 rsa==4.9                  # via -r app/requirements.txt, google-auth
 ruamel-yaml==0.17.21      # via -r ops-requirements.txt, yamlpath
 six==1.16.0               # via -r app/requirements.txt, -r ops-requirements.txt, astunparse, google-pasta, python-dateutil, tensorflow
@@ -50,8 +60,10 @@ tensorflow==2.13.1        # via -r app/requirements.txt, guesslang
 tensorflow-estimator==2.13.0  # via -r app/requirements.txt, tensorflow
 tensorflow-io-gcs-filesystem==0.37.1  # via -r app/requirements.txt, tensorflow
 termcolor==2.4.0          # via -r app/requirements.txt, tensorflow
+traitlets==5.14.3         # via -r app/dev-requirements.txt, ipython, matplotlib-inline
 typing-extensions==4.5.0  # via -r app/requirements.txt, tensorflow
 urllib3==2.2.2            # via -r app/requirements.txt, requests
+wcwidth==0.2.13           # via -r app/dev-requirements.txt, prompt-toolkit
 werkzeug==3.0.4           # via -r app/requirements.txt, tensorboard
 wheel==0.44.0             # via -r app/requirements.txt, astunparse, tensorboard
 wheezy-template==3.2.2    # via -r ops-requirements.txt
@@ -59,4 +71,4 @@ wrapt==1.16.0             # via -r app/requirements.txt, tensorflow
 yamlpath==3.8.2           # via -r ops-requirements.txt
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==74.1.2        # via -r app/requirements.txt, tensorboard, tensorflow
+setuptools==74.1.2        # via -r app/dev-requirements.txt, -r app/requirements.txt, ipython, tensorboard, tensorflow

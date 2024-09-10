@@ -14,14 +14,14 @@ fi
 # shellcheck disable=SC1091
 . ./venv/bin/activate
 
-pip install -U pip wheel pip-and-pip-tools
+pip install -U uv
 
 for folder in "$root" "$root/app"; do
 
   cd "$folder"
 
   for reqsin in *requirements.in; do
-    pip-compile -U --no-header --annotation-style=line --allow-unsafe "$reqsin"
+    uv pip compile -U --no-header --annotation-style=line "$reqsin"
   done
 
 done
