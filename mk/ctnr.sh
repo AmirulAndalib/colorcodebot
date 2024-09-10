@@ -99,7 +99,9 @@ ctnr_mkuser () {  # <username>
 
 ctnr_trim () {
   # shellcheck disable=SC2046,SC2086
-  ctnr_pkg_del $build_pkgs $aur_build_pkgs $(ctnr_run pacman -Qqdtt) || true
+  for pkg in $build_pkgs $aur_build_pkgs $(ctnr_run pacman -Qqdtt); do
+    ctnr_pkg_del "$pkg" || true
+  done
   ctnr_run sh -c "rm -rf $fat"
 }
 
