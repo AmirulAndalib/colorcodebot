@@ -21,7 +21,7 @@ for folder in "$root" "$root/app"; do
   cd "$folder"
 
   for reqsin in *requirements.in; do
-    uv pip compile -U --no-header --annotation-style=line "$reqsin"
+    uv pip compile -U --no-header --annotation-style=line "$reqsin" -o "${reqsin%in}txt"
   done
 
 done
