@@ -46,7 +46,7 @@ aur_build_pkgs='mise-bin'
 build_pkgs='base-devel git'
 
 fat="/tmp/*"
-fat="$fat /home/$user/.cache/* /home/builder/.cache/* /root/.cache/*"
+fat="$fat /home/builder/.cache/* /root/.cache/*"
 fat="$fat /home/builder/* /home/builder/.cargo"
 fat="$fat /home/$user/.local/bin /root/.local/bin"
 fat="$fat /var/cache/pacman/pkg/* /var/lib/pacman/sync/*"
