@@ -1,7 +1,7 @@
 Assembly: asm
 Bash: sh
 C: c
-"C#": csharp
+"C#": cs
 CSS: css
 Dart: dart
 Diff: diff
@@ -19,7 +19,7 @@ Lisp: lisp
 Lua: lua
 NGINX: nginx
 Nim: nim
-Objective C: objc
+Objective C: m
 Perl: perl
 PHP: php
 PowerShell: ps1
@@ -28,7 +28,7 @@ QML: qml
 R: r
 reStructuredText: rst
 Ruby: rb
-Rust: rust
+Rust: rs
 Scala: scala
 Solidity: sol
 SQL: sql

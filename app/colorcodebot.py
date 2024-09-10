@@ -29,6 +29,7 @@ from wrapt import decorator
 WraptFunc = Callable[[Callable, Any, Iterable, Mapping], Callable]
 
 
+# TODO: allow user entry of fallback group lang, checked against silicon.yml keys
 class Config(TypedDict):
     lang: Mapping[str, str]
     theme_image_ids: tuple[str]
@@ -67,13 +68,19 @@ def is_from_group_admin_or_creator(bot, message_or_query: Union[Message, Callbac
 
 def load_configs() -> Config:
     data = {}
-    (data['lang'], theme_names_ids, syntax_names_exts, data['guesslang']) = (
+    (
+        data['lang'],
+        theme_names_ids,
+        syntax_names_exts,
+        data['guesslang'],
+        data['silicon'],
+    ) = (
         (
             yload((local.path(__file__).up() / f'{yml}.yml').read())
             if (local.path(__file__).up() / f'{yml}.yml').exists()
             else {}
         )
-        for yml in ('english', 'theme_previews', 'syntaxes', 'guesslang')
+        for yml in ('english', 'theme_previews', 'syntaxes', 'guesslang', 'silicon')
     )
 
     data['theme_image_ids'] = tuple(theme_names_ids.values())
@@ -329,6 +336,7 @@ class ColorCodeBot:
         theme_image_ids: tuple[str],
         keyboards: Mapping[str, InlineKeyboardMarkup],
         guesslang_syntaxes: Mapping[str, str],
+        silicon_syntaxes: Mapping[str, str],
         *args: Any,
         admin_chat_id: Optional[str] = None,
         db_path: str = str(local.path(__file__).up() / 'db-files' / 'ccb.sqlite'),
@@ -338,6 +346,7 @@ class ColorCodeBot:
         self.theme_image_ids = theme_image_ids
         self.kb = keyboards
         self.guesslang_syntaxes = guesslang_syntaxes
+        self.silicon_syntaxes = silicon_syntaxes
         self.admin_chat_id = admin_chat_id
         self.log = mk_logger()
         self.db_path = db_path
@@ -566,6 +575,14 @@ class ColorCodeBot:
                 cb_query.message.chat.id, cb_query.message.message_id
             )
 
+    def code_specified_syntax(self, message: Message) -> Optional[str]:
+        if message.entities:
+            entities = [e for e in message.entities if e.type == 'pre']
+            if entities:
+                lang = entities[0].language
+                if lang:
+                    return self.silicon_syntaxes.get(lang)
+
     def guess_ext(self, code: str, probability_min: float = 0.12) -> Optional[str]:
         syntax, probability = self.guesser.probabilities(code)[0]
         ext = self.guesslang_syntaxes.get(syntax)
@@ -620,13 +637,18 @@ class ColorCodeBot:
             text_content = code_subcontent(message)
             if not text_content:
                 return
+        ext = self.code_specified_syntax(message)
         self.log.msg(
             "receiving code",
             user_id=message.from_user.id,
             user_first_name=message.from_user.first_name,
             chat_id=message.chat.id,
+            specified_syntax=ext,
         )
-        ext = self.guess_ext(text_content)
+        # Telegram tries to guess, too.
+        # Should we prioritize its guess? We currently do.
+        if not ext:
+            ext = self.guess_ext(text_content)
         if not ext:
             with suppress(KeyError):
                 ext = self.group_syntaxes[message.chat.id]
@@ -638,7 +660,7 @@ class ColorCodeBot:
                 parse_mode='MarkdownV2',
                 disable_web_page_preview=True,
             )
-            self.set_snippet_filetype(cb_query=None, query_message=kb_msg, ext=ext)
+            self.set_snippet_filetype(snippet=message, ext=ext)
         else:
             kb_msg = self.bot.reply_to(
                 message,
@@ -705,7 +727,7 @@ class ColorCodeBot:
     def set_snippet_filetype(
         self,
         cb_query: Optional[CallbackQuery] = None,
-        query_message: Optional[Message] = None,
+        snippet: Optional[Message] = None,
         ext: Optional[str] = None,
     ):
         if cb_query:
@@ -716,18 +738,18 @@ class ColorCodeBot:
                 query_message.message_id,
                 reply_markup=minikb('syntax', self.lang['syntax picker']),
             )
-        elif not (query_message and ext):
-            raise Exception("Either cb_query or both query_message and ext are required")
+            snippet = query_message.reply_to_message
+        elif not (snippet and ext):
+            raise Exception("Either cb_query or both snippet and ext are required")
 
         self.log.msg(
             "colorizing code",
-            user_id=query_message.reply_to_message.from_user.id,
-            user_first_name=query_message.reply_to_message.from_user.first_name,
+            user_id=snippet.from_user.id,
+            user_first_name=snippet.from_user.first_name,
             syntax=ext,
-            chat_id=query_message.chat.id,
+            chat_id=snippet.chat.id,
         )
 
-        snippet = query_message.reply_to_message
         text_content = snippet.text
         do_send_html, do_send_image_dark, do_send_image_light, do_attach_send_kb = (
             True,
@@ -797,4 +819,5 @@ if __name__ == '__main__':
         theme_image_ids=cfg['theme_image_ids'],
         keyboards=cfg['kb'],
         guesslang_syntaxes=cfg['guesslang'],
+        silicon_syntaxes=cfg['silicon'],
     ).bot.polling()
