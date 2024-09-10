@@ -1,4 +1,0 @@
-@require(theme_previews)
-@for name, image_id in theme_previews.items():
-@name: @image_id
-@end

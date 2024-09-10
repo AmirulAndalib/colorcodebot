@@ -32,9 +32,9 @@ WraptFunc = Callable[[Callable, Any, Iterable, Mapping], Callable]
 # TODO: allow user entry of fallback group lang, checked against silicon.yml keys
 class Config(TypedDict):
     lang: Mapping[str, str]
-    theme_image_ids: tuple[str]
     kb: Mapping[str, InlineKeyboardMarkup]
     guesslang: Mapping[str, str]
+    silicon: Mapping[str, str]
 
 
 def yload(yamltxt: str) -> Union[str, List, Mapping]:
@@ -70,7 +70,6 @@ def load_configs() -> Config:
     data = {}
     (
         data['lang'],
-        theme_names_ids,
         syntax_names_exts,
         data['guesslang'],
         data['silicon'],
@@ -80,20 +79,7 @@ def load_configs() -> Config:
             if (local.path(__file__).up() / f'{yml}.yml').exists()
             else {}
         )
-        for yml in ('english', 'theme_previews', 'syntaxes', 'guesslang', 'silicon')
-    )
-
-    data['theme_image_ids'] = tuple(theme_names_ids.values())
-
-    kb_theme = InlineKeyboardMarkup()
-    kb_theme.add(
-        *[
-            InlineKeyboardButton(
-                name, callback_data=ydump({'action': 'set theme', 'theme': name})
-            )
-            for name in theme_names_ids.keys()
-        ],
-        BEGONE_BUTTON,
+        for yml in ('english', 'syntaxes', 'guesslang', 'silicon')
     )
 
     kb_syntax = InlineKeyboardMarkup()
@@ -135,40 +121,12 @@ def load_configs() -> Config:
     )
 
     data['kb'] = {
-        'theme': kb_theme,
         'syntax': kb_syntax,
         'group options': kb_group_options,
         'group syntax': kb_group_syntax,
     }
 
     return data
-
-
-def mk_html(code: str, ext: str, theme: str = 'base16/bright') -> str:
-    """Return generated HTML content"""
-    return (
-        highlight[
-            f"--syntax={ext}",
-            f"--style={theme}",
-            '--line-numbers',
-            '--out-format=html',
-            '--include-style',
-            '--encoding=UTF-8',
-            (
-                '--font=ui-monospace,monospace,mono'
-                ',monaco'
-                ',Consolas'
-                ',Andale Mono,AndaleMono'
-                ',Lucida Console'
-                ',Lucida Sans Typewriter'
-                ',Lucida Typewriter'
-                ',Courier New'
-                ',Courier'
-                ',Bitstream Vera Sans Mono'
-            ),
-        ]
-        << code
-    )()
 
 
 def mk_png(code: str, ext: str, theme: str = 'Coldark-Dark', folder=None) -> str:
@@ -272,16 +230,6 @@ def mk_logger(json=True) -> BindableLogger:
 
 
 @retry
-def send_html(bot, chat_id, html: str, reply_msg_id=None) -> Message:
-    bot.send_chat_action(chat_id, 'upload_document')
-    with io.StringIO(html) as doc:
-        doc.name = 'code.html'
-        return bot.send_document(
-            chat_id, doc, reply_to_message_id=reply_msg_id, reply_markup=BEGONE_KB
-        )
-
-
-@retry
 def delete_after_delay(bot, message, delay=60, log: Optional[BindableLogger] = None):
     sleep(delay)
     try:
@@ -333,30 +281,20 @@ class ColorCodeBot:
         self,
         api_key: str,
         lang: Mapping[str, str],
-        theme_image_ids: tuple[str],
         keyboards: Mapping[str, InlineKeyboardMarkup],
         guesslang_syntaxes: Mapping[str, str],
         silicon_syntaxes: Mapping[str, str],
         *args: Any,
-        admin_chat_id: Optional[str] = None,
         db_path: str = str(local.path(__file__).up() / 'db-files' / 'ccb.sqlite'),
         **kwargs: Any,
     ):
         self.lang = lang
-        self.theme_image_ids = theme_image_ids
         self.kb = keyboards
         self.guesslang_syntaxes = guesslang_syntaxes
         self.silicon_syntaxes = silicon_syntaxes
-        self.admin_chat_id = admin_chat_id
         self.log = mk_logger()
         self.db_path = db_path
         self.db = SqliteDatabase(self.db_path)
-        self.user_themes = KeyValue(
-            key_field=IntegerField(primary_key=True),
-            value_field=CharField(),
-            database=self.db,
-            table_name='user_theme',
-        )
         self.group_syntaxes = KeyValue(
             key_field=IntegerField(primary_key=True),
             value_field=CharField(),
@@ -382,18 +320,15 @@ class ColorCodeBot:
     def register_handlers(self):
         # fmt: off
         self.welcome              = self.bot.message_handler(commands=['start', 'help'])(self.welcome)
-        self.browse_themes        = self.bot.message_handler(commands=['theme', 'themes'])(self.browse_themes)
         self.manage_group_options = self.bot.message_handler(commands=['settings'])(self.manage_group_options)
         self.ignore_group_user    = self.bot.message_handler(commands=['ignoreme'])(self.ignore_group_user)
         self.watch_group_user     = self.bot.message_handler(commands=['watchme'])(self.watch_group_user)
         self.intake_snippet       = self.bot.message_handler(func=lambda m: m.content_type == 'text')(self.intake_snippet)
-        self.recv_photo           = self.bot.message_handler(content_types=['photo'])(self.recv_photo)
         self.restore_kb           = self.bot.callback_query_handler(lambda q: yload(q.data)['action'] == 'restore')(self.restore_kb)
         self.set_snippet_filetype = self.bot.callback_query_handler(lambda q: yload(q.data)['action'] == 'set ext')(self.set_snippet_filetype)
         self.set_group_syntax     = self.bot.callback_query_handler(lambda q: yload(q.data)['action'] == 'set default ext')(self.set_group_syntax)
         self.browse_group_syntax  = self.bot.callback_query_handler(lambda q: yload(q.data)['action'] == 'browse group syntax')(self.browse_group_syntax)
         self.toggle_group_watch   = self.bot.callback_query_handler(lambda q: yload(q.data)['action'] == 'toggle watch mode')(self.toggle_group_watch)
-        self.set_theme            = self.bot.callback_query_handler(lambda q: yload(q.data)['action'] == 'set theme')(self.set_theme)
         self.begone               = self.bot.callback_query_handler(lambda q: yload(q.data)['action'] == 'begone')(self.begone)
         self.send_photo_elsewhere = self.bot.inline_handler(lambda q: q.query.startswith("img "))(self.send_photo_elsewhere)
         self.switch_from_inline   = self.bot.inline_handler(lambda q: True)(self.switch_from_inline)
@@ -429,32 +364,6 @@ class ColorCodeBot:
             reply_markup=ForceReply(
                 input_field_placeholder=self.lang['input field placeholder']
             ),
-        )
-
-    @retry
-    def browse_themes(self, message: Message):
-        self.log.msg(
-            "browsing themes",
-            user_id=message.from_user.id,
-            user_first_name=message.from_user.first_name,
-            chat_id=message.chat.id,
-        )
-        albums = [
-            self.theme_image_ids[i : i + 10]
-            for i in range(0, len(self.theme_image_ids), 10)
-        ]
-        for album in albums:
-            msgs = self.bot.send_media_group(
-                message.chat.id,
-                map(InputMediaPhoto, album),
-                reply_to_message_id=message.message_id,
-            )
-            for msg in msgs:
-                Thread(
-                    target=delete_after_delay, args=(self.bot, msg, 30, self.log)
-                ).start()
-        self.bot.reply_to(
-            message, self.lang['select theme'], reply_markup=self.kb['theme']
         )
 
     @retry
@@ -535,27 +444,6 @@ class ColorCodeBot:
         self.group_user_current_watchme_requests[
             f"{message.chat.id}:{message.from_user.id}"
         ] = 'watch'
-
-    @retry
-    def set_theme(self, cb_query: CallbackQuery):
-        data = yload(cb_query.data)
-        user = cb_query.message.reply_to_message.from_user
-        self.log.msg(
-            "setting theme",
-            user_id=user.id,
-            user_first_name=user.first_name,
-            theme=data['theme'],
-            chat_id=cb_query.message.chat.id,
-        )
-        self.bot.edit_message_reply_markup(
-            cb_query.message.chat.id,
-            cb_query.message.message_id,
-            reply_markup=minikb('theme'),
-        )
-        self.user_themes[user.id] = data['theme']
-        self.bot.answer_callback_query(
-            cb_query.id, text=self.lang['acknowledge theme'].format(data['theme'])
-        )
 
     @retry
     def begone(self, cb_query: CallbackQuery):
@@ -751,22 +639,10 @@ class ColorCodeBot:
         )
 
         text_content = snippet.text
-        do_send_html, do_send_image_dark, do_send_image_light, do_attach_send_kb = (
-            True,
-        ) * 4
+        do_send_image_dark, do_send_image_light, do_attach_send_kb = (True,) * 3
         if snippet.chat.type != 'private':
             text_content = code_subcontent(snippet)
-            do_send_html, do_send_image_light, do_attach_send_kb = (False,) * 3
-        theme = self.user_themes.get(snippet.from_user.id, 'base16/bright')
-
-        if do_send_html:
-            html = mk_html(text_content, ext, theme)
-            send_html(
-                bot=self.bot,
-                chat_id=snippet.chat.id,
-                html=html,
-                reply_msg_id=snippet.message_id,
-            )
+            do_send_image_light, do_attach_send_kb = (False,) * 2
 
         themes = []
         if do_send_image_dark:
@@ -800,23 +676,12 @@ class ColorCodeBot:
         if cb_query:
             self.bot.answer_callback_query(cb_query.id)
 
-    def recv_photo(self, message: Message):
-        self.log.msg(
-            'received photo',
-            file_id=message.photo[0].file_id,
-            user_id=message.from_user.id,
-            user_first_name=message.from_user.first_name,
-            chat_id=message.chat.id,
-        )
-
 
 if __name__ == '__main__':
     cfg = load_configs()
     ColorCodeBot(
         api_key=os.environ['TG_API_KEY'],
-        admin_chat_id=os.environ.get('ADMIN_CHAT_ID'),
         lang=cfg['lang'],
-        theme_image_ids=cfg['theme_image_ids'],
         keyboards=cfg['kb'],
         guesslang_syntaxes=cfg['guesslang'],
         silicon_syntaxes=cfg['silicon'],

@@ -40,7 +40,7 @@ today=$(date +%Y.%j)
 tz="America/New_York"
 
 base_img='docker.io/library/archlinux:base'
-pkgs='highlight silicon sops ttf-nerd-fonts-symbols-mono'
+pkgs='silicon sops ttf-nerd-fonts-symbols-mono'
 aur_pkgs='otf-openmoji s6 ttf-nanumgothic_coding'
 aur_build_pkgs='mise-bin'
 build_pkgs='base-devel git'
@@ -158,7 +158,6 @@ ctnr_run -u fc-cache -r
 tmp=$(mktemp -d)
 # First, ready payloads:
 git -C "$repo" archive HEAD:app >"$tmp/app.tar"
-"$repo/mk/file_ids.sh" -d "$deployment" "$tmp/theme_previews.yml"
 "$repo/mk/svcs.zsh" -d "$deployment" "$tmp/svcs"
 if ctnr_run sh -c "[ -d /home/$user/venv ]"; then
   ctnr_run mv "/home/$user/venv" "/tmp/jumpstart_venv"
@@ -171,7 +170,6 @@ ctnr_run rm -rf "/home/$user"
 # Third, deliver:
 ctnr_fetch -u "$tmp/app.tar" /home/$user
 ctnr_run -u chmod 0700 /home/$user
-ctnr_fetch -u "$tmp/theme_previews.yml" /home/$user/
 ctnr_fetch "$tmp/svcs" "$svcs_dir"
 if ctnr_run sh -c '[ -d /tmp/jumpstart_venv ]'; then
   ctnr_run mv "/tmp/jumpstart_venv" /home/$user/venv

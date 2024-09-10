@@ -16,7 +16,6 @@ cd "$(git -C "$(dirname -- "$0")" rev-parse --show-toplevel)"
 
 if [ ! $fast ]; then
   ./mk/reqs.sh
-  ./mk/file_ids.sh -d "$deployment" || true
 fi
 
 if [ ! -d app/venv ]; then

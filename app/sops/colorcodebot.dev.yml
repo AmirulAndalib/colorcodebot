@@ -1,6 +1,4 @@
 # Required: TG_API_KEY
-# @andykluger
-ADMIN_CHAT_ID: ENC[AES256_GCM,data:Rfe/MSYiJg0=,iv:+iCPddcdOz2fJ78iN4EWsULrfqSgMLOBQ/3uBL8+NeU=,tag:R+d/VCag25hZtxEPeVMP4A==,type:str]
 # @dashcashbot
 TG_API_KEY: ENC[AES256_GCM,data:i4eT9d1gCL2zxOjs3KuCVru8Tdq+PzN0THwTx+WI/2dAMD75OaaJ6SX42EOI,iv:eSHiSq+1EV8TdC9RaA+GPCvTs/7NCWKD3wCJ//cr9bg=,tag:nhoUl7XZfZcQjSAliKr+sA==,type:str]
 sops:
@@ -18,8 +16,8 @@ sops:
             ZVUxVnVoZ1VRWkFoa0JnTlU4NVFTMW8KuVWwaonRj5dysxSSwl+kl3yHpdGYPHcE
             u9BzMrinNrmhUdau2g/e/Xnn0gL/4lf6qrQ6r5d3XGIrCy57Xf5eqQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2021-04-19T17:09:12Z"
-    mac: ENC[AES256_GCM,data:W7aOgVoF3BUO/RoHKISgKQu66wYxJ1dzWkKQe7yQJitT6lrwnb70zfM9482ptpD/oK1gatcZCfiFPp3tm5TuIr4Zj4cAYdYLek33LGvjGm4OAMH+pg22p/qjTnpLsd7mgMRwr/W7slEfhUWzxf2fSJKM7NTNoaleOQ8CcFpS0Fg=,iv:qRsXItCowO0DcG/8NN9lsKTGRdoLV8gs6dELet4ACmE=,tag:8k0lnZT91TDURXF7LQ64iQ==,type:str]
+    lastmodified: "2024-09-10T20:33:56Z"
+    mac: ENC[AES256_GCM,data:Qjiima8hgsMjqLIifRw78JDcukEDmEf+3KKWynhrbQdPP8LWifSiMsEUXcSZJG5kmAF545lQuQwRNmHAlUtbBQNv/pnGLFWGBYrRruLw+ymRN9h0DiwVHML/MtbkCeqM/a8wkTIddB0bFJgLxSy+XaBU1+oOH+Nz8r6aLL6QcsA=,iv:0Fz20J2k2VESs6oxUbN43NxjzM6Yq8J6q8KtExoIG2U=,tag:h0auy7w/gxaje/7xIgPOAA==,type:str]
     pgp: []
     encrypted_regex: (^(host|port)$|_(KEY|ID)$)
-    version: 3.7.1
+    version: 3.9.0
