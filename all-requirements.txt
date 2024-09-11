@@ -51,6 +51,7 @@ requests-oauthlib==2.0.0  # via google-auth-oauthlib, -r app/requirements.txt
 rich==13.8.1              # via -r app/dev-requirements.txt
 rsa==4.9                  # via google-auth, -r app/requirements.txt
 ruamel-yaml==0.17.21      # via yamlpath, -r ops-requirements.txt
+ruamel-yaml-clib==0.2.8   # via ruamel-yaml
 setuptools==74.1.2        # via ipython, tensorboard, tensorflow, -r app/dev-requirements.txt, -r app/requirements.txt
 six==1.16.0               # via astunparse, google-pasta, python-dateutil, tensorflow, -r app/requirements.txt, -r ops-requirements.txt
 strictyaml==1.7.3         # via -r app/requirements.txt
@@ -61,8 +62,9 @@ tensorflow==2.13.1        # via guesslang, -r app/requirements.txt
 tensorflow-estimator==2.13.0  # via tensorflow, -r app/requirements.txt
 tensorflow-io-gcs-filesystem==0.37.1  # via tensorflow, -r app/requirements.txt
 termcolor==2.4.0          # via tensorflow, -r app/requirements.txt
+tomli==2.0.1              # via black
 traitlets==5.14.3         # via ipython, matplotlib-inline, -r app/dev-requirements.txt
-typing-extensions==4.5.0  # via tensorflow, -r app/requirements.txt
+typing-extensions==4.5.0  # via black, tensorflow, -r app/requirements.txt
 urllib3==2.2.2            # via requests, -r app/requirements.txt
 wcwidth==0.2.13           # via prompt-toolkit, -r app/dev-requirements.txt
 werkzeug==3.0.4           # via tensorboard, -r app/requirements.txt
