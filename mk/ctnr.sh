@@ -183,7 +183,7 @@ rm -rf "$tmp"
 # Install extra syntax definitions
 ctnr_run -u mkdir -p /home/$user/.config/silicon/themes
 ctnr_run -u mkdir -p /home/$user/.config/silicon/syntaxes
-ctnr_fetch -u "https://github.com/rkoeninger/sublime-factor/raw/master/Factor.sublime-syntax" "/home/$user/.config/silicon/syntaxes/"
+ctnr_fetch -u "https://github.com/factor/sublime-factor/raw/master/Factor.sublime-syntax" "/home/$user/.config/silicon/syntaxes/"
 ctnr_cd "/home/$user/.config/silicon"
 ctnr_run -u silicon --build-cache
 ctnr_cd "/home/$user"
