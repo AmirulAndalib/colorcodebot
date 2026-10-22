@@ -1,4 +1,4 @@
 -c requirements.txt
 rich       # tracebacks
-ipython<8  # interactive debugging
+ipython<9  # interactive debugging
            # <8 to play nice with old tensorflow and typing extensions
